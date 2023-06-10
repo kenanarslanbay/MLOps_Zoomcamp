@@ -12,7 +12,8 @@ import xgboost as xgb
 from prefect import flow, task
 from prefect.artifacts import create_markdown_artifact
 from prefect_email import EmailServerCredentials, email_send_message
-
+from prefect.infrastructure.process import Process
+from prefect.context import get_run_context
 
 
 
@@ -133,10 +134,16 @@ def train_best_model(
     return None
  
 @task(task_run_name="send_email")
-def send_email():
-    """Send email with the report"""
-    email_credentials_block = EmailServerCredentials.load("prefect")
-    
+def example_email_send_message_task(email_addresses: list[str]):
+    email_server_credentials = EmailServerCredentials.load("gmail")
+    for email_address in email_addresses:
+        subject = email_send_message.with_options(name=f"email {email_address}").submit(
+            email_server_credentials=email_server_credentials,
+            subject="Example Flow Notification using Gmail",
+            msg="This proves email_send_message works!",
+            email_to=email_address,
+        )
+        print(f"Email sent to {email_address} with subject: {subject}")
     return None
 
 
@@ -162,8 +169,9 @@ def main_flow(
     train_best_model(X_train, X_val, y_train, y_val, dv)
     
     # Send email
-    send_email()
+    example_email_send_message_task(["kenanarslanbay@gmail.com"])
 
 
 if __name__ == "__main__":
     main_flow()
+    
