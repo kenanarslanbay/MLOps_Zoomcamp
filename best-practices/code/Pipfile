@@ -7,6 +7,9 @@ name = "pypi"
 boto3 = "*"
 mlflow = "*"
 scikit-learn = "==1.0.2"
+requests = "*"
+types-requests = "*"
+deepdiff = "*"
 
 [dev-packages]
 pytest = "*"
